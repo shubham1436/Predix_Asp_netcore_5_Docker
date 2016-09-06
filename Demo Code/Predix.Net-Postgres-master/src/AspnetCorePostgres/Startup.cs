@@ -19,21 +19,31 @@ namespace AspnetCorePostgres
 
             const string envName = "VCAP_SERVICES";
             var settings = Environment.GetEnvironmentVariable(envName);
-            var jSettings = JObject.Parse(settings);
-            var postgresCreds = jSettings["postgres"][0]["credentials"];
-            var username = postgresCreds["username"];
-            var password = postgresCreds["password"];
-            var host = postgresCreds["host"];
-            var port = postgresCreds["port"];
-            var database = postgresCreds["database"];
+            if (settings != null)
+            {
+                var jSettings = JObject.Parse(settings);
+                var postgresCreds = jSettings["postgres"][0]["credentials"];
+                var username = postgresCreds["username"];
+                var password = postgresCreds["password"];
+                var host = postgresCreds["host"];
+                var port = postgresCreds["port"];
+                var database = postgresCreds["database"];
 
-            var connectionString = $"User ID={username};Password={password};Server={host};Port={port};Database={database};Pooling=true;";
-            services.AddDbContext<AuthorsContext>(
-                opts => opts.UseNpgsql(connectionString)
-            );
-            services.AddDbContext<PartFamilyContext>(
-                opts => opts.UseNpgsql(connectionString)
-            );
+                var connectionString = $"User ID={username};Password={password};Server={host};Port={port};Database={database};Pooling=true;";
+                services.AddDbContext<AuthorsContext>(
+                    opts => opts.UseNpgsql(connectionString)
+                );
+                services.AddDbContext<PartFamilyContext>(
+                    opts => opts.UseNpgsql(connectionString)
+                );
+            }
+            else
+            {
+                var connectionString = $"User ID={"predix"};Password={"Passw0rd"};Server={"postgredbinstance.csvmb2lpeipv.ap-south-1.rds.amazonaws.com"};Port={"5432"};Database={"PartFamily"};Pooling=true;";
+                services.AddDbContext<PartFamilyContext>(
+                                   opts => opts.UseNpgsql(connectionString)
+                               );
+            }
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
